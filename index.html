@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#202b27"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-180.png"><title>DEAD ZONE A-Z · Edition 1.3</title><style>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#202b27"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-180.png"><title>DEAD ZONE A-Z · Edition 1.27</title><style>
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(155deg,#008044,#087039 75%,#0c9a54);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100dvh}button,select{font:inherit}button{touch-action:manipulation;cursor:pointer}header{max-width:850px;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:19px 15px 8px}header strong{font-size:23px}header button{border:0;background:transparent;color:white;font-size:27px}.toolbar{max-width:850px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:10px 15px 17px;gap:9px}.flag{background:linear-gradient(#29d17d,#0baf64);color:#045532;border-radius:7px 7px 15px 15px;padding:9px 17px;text-align:center;box-shadow:0 3px 0 #076637;font-weight:750}.flag strong{font-size:26px;display:block}.stats{text-align:center;font-size:12px}.stats b{display:block;font-size:20px}.stock{width:78px;height:105px;border:5px solid white;border-radius:13px;background:repeating-linear-gradient(45deg,#2394ff 0 12px,#4bafff 12px 24px);box-shadow:0 4px 0 #004d2d;position:relative;color:#08385b;font-weight:800}.stock span{position:absolute;right:-7px;top:-10px;border-radius:0 8px 0 9px;background:white;padding:2px 9px}.stock:disabled{opacity:.45}.board{max-width:850px;margin:10px auto 0;padding:0 9px;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:7px}.column{min-width:0}.target{height:92px;border:2px dashed #5dc68f;border-radius:12px;background:#005a2e80;display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:12px;color:#b6e8cc;text-align:center;font-size:12px}.target.active{background:#fffdf8;color:#624632;border:3px solid #e4a51d}.target .cat{position:absolute;top:-13px;left:0;right:0;background:#eeb83d;color:#59400c;border-radius:5px 5px 0 0;font-weight:800;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:clamp(10px,2.7vw,14px)}.target .count{font-weight:800;font-size:20px}.stack{height:clamp(340px,105vw,550px);position:relative;border-radius:10px;background:#005e3333;border:1px solid #ffffff15}.card{position:absolute;left:0;width:100%;height:clamp(104px,29vw,150px);border:3px solid #fff;border-radius:12px;background:#fffdfa;color:#60432f;box-shadow:0 4px 2px #004e3055;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;overflow:hidden;padding:4px;font-size:clamp(12px,3.3vw,20px);font-weight:750;overflow-wrap:anywhere}.card .emoji{font-size:clamp(20px,5.5vw,35px)}.card.back{background:repeating-linear-gradient(45deg,#168bf0 0 13px,#53aeff 13px 26px);color:#c9eaff}.card.category{border-color:#ffcf4e;color:#61451b;background:#fffaf0}.card.selected{outline:4px solid #ffe03d;z-index:100!important}.card small{font-size:10px}.card.locked{background:#ddd6c9}.waste{max-width:850px;margin:0 auto 10px;width:120px;min-height:76px;background:#fffdf8;color:#63422b;border:3px solid #e4b63b;border-radius:12px;text-align:center;padding:10px;font-weight:800}.waste.selected{outline:4px solid #ffe03d}.footer{max-width:850px;margin:10px auto;padding:0 15px 30px}.message{border-radius:12px;background:#006337;padding:15px;text-align:center;min-height:66px;font-weight:650;line-height:1.4}.actions{display:flex;gap:7px;margin-top:12px}.actions button{flex:1;border:0;background:#fff4d8;color:#5e432c;border-radius:10px;padding:13px 3px;font-weight:800;font-size:clamp(11px,3vw,15px)}.overlay{position:fixed;inset:0;background:#002e20e9;display:flex;justify-content:center;align-items:center;padding:16px;z-index:200}.hidden{display:none!important}.modal{background:#fffcf3;color:#4c3a2d;border-radius:20px;padding:23px;width:min(410px,100%);text-align:center;max-height:90dvh;overflow:auto}.modal h2{color:#7544a0}.modal button,.modal select{width:100%;border:0;border-radius:10px;padding:14px;margin:8px 0}.modal button{background:#7838a2;color:white;font-weight:800}.modal select{background:#efe2f6}.sub{font-size:13px;color:#6c615b}.logo{font-size:65px}.pill{background:#eee5d6;border-radius:10px;padding:10px;font-size:13px} @media(min-width:650px){.card{font-size:18px}}
 
 /* V9: kompakter Spieltisch und Fingersteuerung */
@@ -717,18 +717,79 @@ function maybeCreatureVisit(){
  creatureNextMove+=9+((g.level+creatureVisits*3)%5);
  showCreatureVisit();
 }
-let creatureImpactTimer=null;
+// v1.27: layered cinematic horror sound; keep iOS audio behind a user gesture.
+let horrorContext=null, horrorMaster=null, creatureFrame=0, creatureTimer=null, creatureImpactTimer=null;
+const glassSample=new Audio('./glass-impact.wav');glassSample.preload='auto';
+function unlockHorrorAudio(){
+ if(!soundEnabled)return;
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+  if(!horrorContext){horrorContext=new AC();horrorMaster=horrorContext.createGain();horrorMaster.gain.value=.72;horrorMaster.connect(horrorContext.destination)}
+  if(horrorContext.state==='suspended')horrorContext.resume().catch(()=>{});
+ }catch(e){console.warn('Audio nicht verfügbar',e)}
+}
+function horrorTone(freq,duration,volume,delay=0,type='sawtooth',endFreq=0){
+ if(!soundEnabled||!horrorContext||horrorContext.state!=='running')return;
+ const c=horrorContext,t=c.currentTime+delay,o=c.createOscillator(),g=c.createGain(),filter=c.createBiquadFilter();
+ filter.type='lowpass';filter.frequency.value=850;o.type=type;o.frequency.setValueAtTime(freq,t);
+ if(endFreq>0)o.frequency.exponentialRampToValueAtTime(endFreq,t+duration);
+ g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.001,volume),t+.025);
+ g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+ o.connect(filter);filter.connect(g);g.connect(horrorMaster);o.start(t);o.stop(t+duration+.03);
+}
+function horrorNoise(duration,volume,delay=0,highpass=900){
+ if(!soundEnabled||!horrorContext||horrorContext.state!=='running')return;
+ const c=horrorContext,t=c.currentTime+delay,len=Math.ceil(c.sampleRate*duration),buffer=c.createBuffer(1,len,c.sampleRate),data=buffer.getChannelData(0);
+ for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(1-i/len);
+ const src=c.createBufferSource(),filter=c.createBiquadFilter(),g=c.createGain();
+ src.buffer=buffer;filter.type='highpass';filter.frequency.value=highpass;
+ g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.001,volume),t+.012);
+ g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+ src.connect(filter);filter.connect(g);g.connect(horrorMaster);src.start(t);src.stop(t+duration);
+}
+function horrorCue(kind,variant=0){
+ if(!soundEnabled)return;unlockHorrorAudio();
+ if(kind==='approach'){
+  horrorTone(variant===1?165:variant===2?75:105,.75,.095,0,'sawtooth',variant===1?90:48);
+  horrorNoise(.16,.055,.18,250);
+  horrorTone(62,.15,.075,.9,'triangle',45);
+  horrorTone(55,.18,.09,1.5,'triangle',40);
+ }else if(kind==='crack'){
+  horrorTone(90,.23,.16,0,'triangle',44);horrorNoise(.28,.18,.025,1050);
+ }else if(kind==='smash'){
+  horrorTone(68,.45,.24,0,'sawtooth',36);
+  horrorNoise(.95,.25,.02,1450);horrorNoise(.46,.14,.13,3000);
+  glassSample.pause();glassSample.currentTime=0;glassSample.volume=.85;
+  glassSample.play().catch(()=>{});
+ }
+}
+function stopCreatureVisit(){
+ cancelAnimationFrame(creatureFrame);clearTimeout(creatureTimer);clearTimeout(creatureImpactTimer);
+ const el=$('creatureVisit'),video=$('creatureMovie');
+ if(video)video.pause();if(el)el.classList.remove('active','smash');
+}
 function showCreatureVisit(){
- const el=$('creatureVisit'), video=$('creatureMovie');if(!el||!video)return;
- clearTimeout(creatureTimer);clearTimeout(creatureImpactTimer);
- video.pause();el.classList.remove('active','smash');
+ const el=$('creatureVisit'),video=$('creatureMovie');if(!el||!video)return;
+ stopCreatureVisit();
  const clips=['zombie-mann-glass.mp4','zombie-frau-glass.mp4','zombie-soldat-glass.mp4'];
- video.src=clips[(g.level-1)%3];video.muted=!soundEnabled;video.volume=1;video.currentTime=0;
+ const variant=(g.level-1)%3;video.src=clips[variant];video.muted=!soundEnabled;
+ video.volume=soundEnabled?.48:1;video.currentTime=0;
  void el.offsetWidth;el.classList.add('active');
- // The glass shatters at the exact point of the additional impact audio.
- creatureImpactTimer=setTimeout(()=>el.classList.add('smash'),5600);
- video.play().catch(err=>{console.warn('Zombie-Video nicht gestartet',err);el.classList.remove('active','smash')});
- creatureTimer=setTimeout(()=>{video.pause();el.classList.remove('active','smash')},8000);
+ horrorCue('approach',variant);
+ let cracked=false,smashed=false,started=performance.now();
+ const sync=()=>{
+  if(!el.classList.contains('active'))return;
+  // Video timeline is the source of truth; wall-clock fallback covers delayed iOS playback.
+  const t=video.currentTime||Math.max(0,(performance.now()-started)/1000-.3);
+  if(!cracked&&t>=4.85){cracked=true;horrorCue('crack')}
+  if(!smashed&&t>=5.6){smashed=true;el.classList.add('smash');horrorCue('smash')}
+  if(t>=7.9){stopCreatureVisit();return}
+  creatureFrame=requestAnimationFrame(sync);
+ };
+ video.play().then(()=>{started=performance.now();creatureFrame=requestAnimationFrame(sync)}).catch(err=>{
+  console.warn('Zombie-Video nicht gestartet',err);stopCreatureVisit();
+ });
+ creatureTimer=setTimeout(stopCreatureVisit,10500);
 }
 const ambience=new Audio('./zombie-atmosphaere.mp3');
 ambience.loop=true;ambience.volume=.18;ambience.preload='none';
@@ -870,7 +931,7 @@ $('storyOpen').addEventListener('click',()=>openStory('welcome'));
 $('mapStoryOpen').addEventListener('click',()=>openStory('map'));
 $('storyBack').addEventListener('click',()=>{$('storyOverlay').classList.add('hidden');$('storyDetail').classList.add('hidden');if(storyReturn==='map'){$('mapOverlay').classList.remove('hidden');renderMap()}else openMenu()});
 $('storyGrid').addEventListener('click',e=>{const b=e.target.closest('[data-story]');if(!b)return;const i=Number(b.dataset.story),done=unlocked($('difficulty').value)-1;if(done<(i+1)*10){$('storyDetail').classList.remove('hidden');$('storyDetail').innerHTML='<strong>🔒 Kapitel '+(i+1)+' gesperrt</strong><p>Schließe Mission '+((i+1)*10)+' ab, um diese Szene freizuschalten.</p>';return}$('storyDetail').classList.remove('hidden');$('storyDetail').innerHTML='<img src="story-'+(i+1)+'.webp" alt="'+STORY_TITLES[i]+'"><h3>Kapitel '+(i+1)+': '+STORY_TITLES[i]+'</h3><p>'+STORY_TEXT[i]+'</p>';$('storyDetail').scrollIntoView({block:'nearest',behavior:'smooth'})});
-$('rulesOpen').addEventListener('click',()=>{$('welcome').classList.add('hidden');$('rulesOverlay').classList.remove('hidden')});$('rulesClose').addEventListener('click',()=>{$('rulesOverlay').classList.add('hidden');$('welcome').classList.remove('hidden')});$('soundToggle').addEventListener('click',()=>{soundEnabled=!soundEnabled;try{localStorage.setItem('deadzoneAZ_sound',soundEnabled?'on':'off')}catch(e){}updateSoundButton();if(soundEnabled)playSound('unlock');syncAmbience()});updateSoundButton();$('achievementsOpen').addEventListener('click',openAchievements);$('achievementsBack').addEventListener('click',()=>{$('achievementsOverlay').classList.add('hidden');$('welcome').classList.remove('hidden')});$('mapOpen').addEventListener('click',()=>openMap($('difficulty').value));$('mapBack').addEventListener('click',()=>{$('mapOverlay').classList.add('hidden');openMenu()});$('mapNext').addEventListener('click',()=>{mapPage++;renderMap()});$('mapPrev').addEventListener('click',()=>{mapPage=Math.max(0,mapPage-1);renderMap()});$('mapLandscape').addEventListener('click',e=>{const b=e.target.closest('[data-reward]');if(!b)return;const n=Number(b.dataset.reward);$('mapInfo').textContent=unlocked(mapDifficulty)>n?'🧟 Zombie-Bild für Mission '+n+' freigeschaltet!':'🔒 Schaffe Mission '+n+', um dieses Zombie-Bild freizuschalten.';});$('mapLandscape').addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-maplevel]')){e.preventDefault();e.target.click()}});$('mapLandscape').addEventListener('click',e=>{const b=e.target.closest('[data-maplevel]');if(!b)return;const n=Number(b.dataset.maplevel);if(n>unlocked(mapDifficulty))return;mapSelected=n;renderMap()});$('mapPlay').addEventListener('click',()=>{if(mapSelected>unlocked(mapDifficulty))return;try{create(mapSelected,mapDifficulty);$('mapOverlay').classList.add('hidden')}catch(e){$('mapInfo').textContent='Level konnte nicht aufgebaut werden: '+e.message}});$('board').addEventListener('click',e=>{if(Date.now()<suppressClickUntil)return;let p=e.target.closest('[data-type]');if(p)tap(p.dataset.type,Number(p.dataset.i),Number(p.dataset.j))});$('start').addEventListener('click',()=>{try{create(unlocked($('difficulty').value),$('difficulty').value);$('welcome').classList.add('hidden')}catch(e){$('progress').textContent='Startfehler: '+e.message;console.error(e)}});$('continue').addEventListener('click',()=>{$('welcome').classList.add('hidden');render('Weiter geht’s!')});$('menu').addEventListener('click',openMenu);$('difficulty').addEventListener('change',updateProgress);$('hint').addEventListener('click',hint);$('undo').addEventListener('click',()=>{if(!history.length){msg('Kein Zug zum Zurücknehmen.');return}let used=g.hintsUsed;g=JSON.parse(history.pop());g.hintsUsed=Math.max(used,g.hintsUsed);selected=null;render('↶ Zurückgenommen. Hinweise bleiben verbraucht.')});$('restart').addEventListener('click',()=>dialog('Neu starten?','Dein aktueller Fortschritt im Level wird zurückgesetzt.',[['Neustart',()=>{hide();create(g.level,g.difficulty)}],['Abbrechen',hide]]));$('stock').addEventListener('click',()=>{if(!g||g.completed)return;if(!g.stock.length){if(!g.waste.length&&!(g.reserve||[]).length)return;snapshot();if((g.reserve||[]).length){g.stock=g.reserve.splice(0).reverse();render('🃏 Weitere Karten freigegeben – ohne Zugkosten.')}else{g.stock=g.waste.reverse();g.waste=[];render('🔄 Nachziehstapel wieder aufgefüllt – ohne Zugkosten.')}selected=null;return}snapshot();g.waste.push(g.stock.pop());selected=null;render('Neue Karte gezogen – ohne Zugkosten.');});$('waste').addEventListener('click',()=>{if(Date.now()>=suppressClickUntil)tap('waste',0,0)});
+$('rulesOpen').addEventListener('click',()=>{$('welcome').classList.add('hidden');$('rulesOverlay').classList.remove('hidden')});$('rulesClose').addEventListener('click',()=>{$('rulesOverlay').classList.add('hidden');$('welcome').classList.remove('hidden')});$('soundToggle').addEventListener('click',()=>{soundEnabled=!soundEnabled;try{localStorage.setItem('deadzoneAZ_sound',soundEnabled?'on':'off')}catch(e){}updateSoundButton();if(soundEnabled){unlockHorrorAudio();playSound('unlock')}else{glassSample.pause();if(horrorContext)horrorContext.suspend().catch(()=>{})}syncAmbience()});updateSoundButton();$('achievementsOpen').addEventListener('click',openAchievements);$('achievementsBack').addEventListener('click',()=>{$('achievementsOverlay').classList.add('hidden');$('welcome').classList.remove('hidden')});$('mapOpen').addEventListener('click',()=>openMap($('difficulty').value));$('mapBack').addEventListener('click',()=>{$('mapOverlay').classList.add('hidden');openMenu()});$('mapNext').addEventListener('click',()=>{mapPage++;renderMap()});$('mapPrev').addEventListener('click',()=>{mapPage=Math.max(0,mapPage-1);renderMap()});$('mapLandscape').addEventListener('click',e=>{const b=e.target.closest('[data-reward]');if(!b)return;const n=Number(b.dataset.reward);$('mapInfo').textContent=unlocked(mapDifficulty)>n?'🧟 Zombie-Bild für Mission '+n+' freigeschaltet!':'🔒 Schaffe Mission '+n+', um dieses Zombie-Bild freizuschalten.';});$('mapLandscape').addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-maplevel]')){e.preventDefault();e.target.click()}});$('mapLandscape').addEventListener('click',e=>{const b=e.target.closest('[data-maplevel]');if(!b)return;const n=Number(b.dataset.maplevel);if(n>unlocked(mapDifficulty))return;mapSelected=n;renderMap()});$('mapPlay').addEventListener('click',()=>{if(mapSelected>unlocked(mapDifficulty))return;try{create(mapSelected,mapDifficulty);$('mapOverlay').classList.add('hidden')}catch(e){$('mapInfo').textContent='Level konnte nicht aufgebaut werden: '+e.message}});$('board').addEventListener('click',e=>{if(Date.now()<suppressClickUntil)return;let p=e.target.closest('[data-type]');if(p)tap(p.dataset.type,Number(p.dataset.i),Number(p.dataset.j))});$('start').addEventListener('click',()=>{try{create(unlocked($('difficulty').value),$('difficulty').value);$('welcome').classList.add('hidden')}catch(e){$('progress').textContent='Startfehler: '+e.message;console.error(e)}});$('continue').addEventListener('click',()=>{$('welcome').classList.add('hidden');render('Weiter geht’s!')});$('menu').addEventListener('click',openMenu);$('difficulty').addEventListener('change',updateProgress);$('hint').addEventListener('click',hint);$('undo').addEventListener('click',()=>{if(!history.length){msg('Kein Zug zum Zurücknehmen.');return}let used=g.hintsUsed;g=JSON.parse(history.pop());g.hintsUsed=Math.max(used,g.hintsUsed);selected=null;render('↶ Zurückgenommen. Hinweise bleiben verbraucht.')});$('restart').addEventListener('click',()=>dialog('Neu starten?','Dein aktueller Fortschritt im Level wird zurückgesetzt.',[['Neustart',()=>{hide();create(g.level,g.difficulty)}],['Abbrechen',hide]]));$('stock').addEventListener('click',()=>{if(!g||g.completed)return;if(!g.stock.length){if(!g.waste.length&&!(g.reserve||[]).length)return;snapshot();if((g.reserve||[]).length){g.stock=g.reserve.splice(0).reverse();render('🃏 Weitere Karten freigegeben – ohne Zugkosten.')}else{g.stock=g.waste.reverse();g.waste=[];render('🔄 Nachziehstapel wieder aufgefüllt – ohne Zugkosten.')}selected=null;return}snapshot();g.waste.push(g.stock.pop());selected=null;render('Neue Karte gezogen – ohne Zugkosten.');});$('waste').addEventListener('click',()=>{if(Date.now()>=suppressClickUntil)tap('waste',0,0)});
 
 // Fingersteuerung (Pointer Events): eine Karte oder eine zusammenhängende Gruppe ziehen.
 let drag=null, suppressClickUntil=0;
