@@ -718,7 +718,7 @@ function maybeCreatureVisit(){
  showCreatureVisit();
 }
 // v1.27: layered cinematic horror sound; keep iOS audio behind a user gesture.
-let horrorContext=null, horrorMaster=null, creatureFrame=0, creatureTimer=null, creatureImpactTimer=null;
+let horrorContext=null, horrorMaster=null, creatureFrame=0, creatureImpactTimer=null;
 const glassSample=new Audio('./glass-impact.wav');glassSample.preload='auto';
 function unlockHorrorAudio(){
  if(!soundEnabled)return;
