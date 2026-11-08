@@ -772,7 +772,9 @@ function showCreatureVisit(){
  const el=$('creatureVisit'),video=$('creatureMovie');if(!el||!video)return;
  stopCreatureVisit();
  const clips=['zombie-mann-glass.mp4','zombie-frau-glass.mp4','zombie-soldat-glass.mp4','zombie-neu-1.mp4','zombie-neu-2.mp4','zombie-neu-3.mp4','zombie-neu-4.mp4','zombie-neu-5.mp4','zombie-neu-6.mp4'];
- const variant=(g.level-1)%clips.length;video.src=clips[variant];video.muted=!soundEnabled;
+ const variant=(g.level-1)%clips.length;video.src=clips[variant];
+ const posters=['','', '', 'zombie-neu-1.jpg','zombie-neu-2.jpg','zombie-neu-3.jpg','zombie-neu-4.jpg','zombie-neu-5.jpg','zombie-neu-6.jpg'];
+ video.poster=posters[variant]||'';video.muted=!soundEnabled;
  video.volume=soundEnabled?.48:1;video.currentTime=0;
  void el.offsetWidth;el.classList.add('active');
  horrorCue('approach',variant);
