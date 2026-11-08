@@ -750,7 +750,9 @@ function horrorNoise(duration,volume,delay=0,highpass=900){
 function horrorCue(kind,variant=0){
  if(!soundEnabled)return;unlockHorrorAudio();
  if(kind==='approach'){
-  horrorTone(variant===1?165:variant===2?75:105,.75,.095,0,'sawtooth',variant===1?90:48);
+  horrorTone(variant===1?145:variant===2?80:110,1.35,.19,.15,'sawtooth',variant===1?78:47);
+  horrorTone(92,1.2,.14,2.15,'sawtooth',43);
+  horrorTone(105,1.15,.15,4.15,'sawtooth',49);
   horrorNoise(.16,.055,.18,250);
   horrorTone(62,.15,.075,.9,'triangle',45);
   horrorTone(55,.18,.09,1.5,'triangle',40);
@@ -773,8 +775,8 @@ function showCreatureVisit(){
  const clips=['zombie-mann-glass.mp4','zombie-frau-glass.mp4','zombie-soldat-glass.mp4','zombie-neu-1.mp4','zombie-neu-3.mp4','zombie-neu-4.mp4','zombie-neu-5.mp4','zombie-neu-6.mp4'];
  const variant=(g.level-1)%clips.length;video.src=clips[variant];
  const posters=['','', '', 'zombie-neu-1.jpg','zombie-neu-3.jpg','zombie-neu-4.jpg','zombie-neu-5.jpg','zombie-neu-6.jpg'];
- video.poster=posters[variant]||'';video.muted=true;video.playsInline=true;
- video.volume=0;video.currentTime=0;video.onended=stopCreatureVisit;
+ video.poster=posters[variant]||'';video.muted=!soundEnabled;video.playsInline=true;
+ video.volume=soundEnabled?.68:0;video.currentTime=0;video.onended=stopCreatureVisit;
  void el.offsetWidth;el.classList.add('active');
  horrorCue('approach',variant);
  let cracked=false,smashed=false,started=performance.now();
@@ -782,14 +784,16 @@ function showCreatureVisit(){
   if(!el.classList.contains('active'))return;
   // Video timeline is the source of truth; wall-clock fallback covers delayed iOS playback.
   const t=video.currentTime||Math.max(0,(performance.now()-started)/1000-.3);
-  if(!cracked&&t>=4.85){cracked=true;horrorCue('crack')}
-  if(!smashed&&t>=5.6){smashed=true;el.classList.add('smash');horrorCue('smash')}
+  if(!cracked&&t>=6.05){cracked=true;horrorCue('crack')}
+  if(!smashed&&t>=6.65){smashed=true;el.classList.add('smash');horrorCue('smash')}
   if(t>=7.9){stopCreatureVisit();return}
   creatureFrame=requestAnimationFrame(sync);
  };
  creatureFrame=requestAnimationFrame(sync);
- video.play().then(()=>{}).catch(err=>{
-  console.warn('Zombie-Video nicht gestartet',err);stopCreatureVisit();
+ video.play().catch(err=>{
+  // iOS can reject sound-enabled inline playback: retry muted without blocking gameplay.
+  console.warn('Zombie-Video mit Ton nicht gestartet',err);
+  video.muted=true;video.play().catch(e=>{console.warn('Zombie-Video nicht gestartet',e);stopCreatureVisit()});
  });
  creatureTimer=setTimeout(stopCreatureVisit,8300);
 }
