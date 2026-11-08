@@ -776,16 +776,16 @@ function showCreatureVisit(){
  const variant=(g.level-1)%clips.length;video.src=clips[variant];
  const posters=['','', '', 'zombie-neu-1.jpg','zombie-neu-3.jpg','zombie-neu-4.jpg','zombie-neu-5.jpg','zombie-neu-6.jpg'];
  video.poster=posters[variant]||'';video.muted=!soundEnabled;video.playsInline=true;
- video.volume=soundEnabled?.68:0;video.currentTime=0;video.onended=stopCreatureVisit;
+ video.volume=soundEnabled?.68:0;video.currentTime=0;video.onended=()=>{if(!smashed){smashed=true;el.classList.add('smash');horrorCue('smash');creatureTimer=setTimeout(stopCreatureVisit,850)}else stopCreatureVisit()};
  void el.offsetWidth;el.classList.add('active');
  horrorCue('approach',variant);
  let cracked=false,smashed=false,started=performance.now();
  const sync=()=>{
   if(!el.classList.contains('active'))return;
   // Video timeline is the source of truth; wall-clock fallback covers delayed iOS playback.
-  const t=video.currentTime||Math.max(0,(performance.now()-started)/1000-.3);
-  if(!cracked&&t>=6.05){cracked=true;horrorCue('crack')}
-  if(!smashed&&t>=6.65){smashed=true;el.classList.add('smash');horrorCue('smash')}
+  const t=Math.max(video.currentTime||0,(performance.now()-started)/1000);
+  if(!cracked&&t>=4.95){cracked=true;horrorCue('crack')}
+  if(!smashed&&t>=5.65){smashed=true;el.classList.add('smash');horrorCue('smash')}
   if(t>=7.9){stopCreatureVisit();return}
   creatureFrame=requestAnimationFrame(sync);
  };
