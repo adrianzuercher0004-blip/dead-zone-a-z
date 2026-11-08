@@ -720,12 +720,28 @@ function maybeCreatureVisit(){
 // v1.27: layered cinematic horror sound; keep iOS audio behind a user gesture.
 let horrorContext=null, horrorMaster=null, creatureFrame=0, creatureImpactTimer=null;
 const glassSample=new Audio('./glass-impact.wav');glassSample.preload='auto';
+let glassBuffer=null,glassLoading=null;
+function prepareGlassSound(){
+ if(glassBuffer||glassLoading||!horrorContext)return;
+ glassLoading=fetch('./glass-impact.wav').then(r=>{if(!r.ok)throw Error('glass audio '+r.status);return r.arrayBuffer()})
+  .then(b=>horrorContext.decodeAudioData(b)).then(b=>{glassBuffer=b}).catch(e=>console.warn('Glas-Sample nicht ladbar',e));
+}
+function playGlassImpact(){
+ if(!soundEnabled)return;
+ if(horrorContext&&horrorContext.state==='running'&&glassBuffer){
+  const src=horrorContext.createBufferSource(),gain=horrorContext.createGain();
+  src.buffer=glassBuffer;gain.gain.value=.95;src.connect(gain);gain.connect(horrorMaster);src.start();return;
+ }
+ glassSample.pause();glassSample.currentTime=0;glassSample.volume=.85;
+ glassSample.play().catch(()=>{horrorNoise(.55,.20,0,1900)});
+}
 function unlockHorrorAudio(){
  if(!soundEnabled)return;
  try{
   const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
   if(!horrorContext){horrorContext=new AC();horrorMaster=horrorContext.createGain();horrorMaster.gain.value=.72;horrorMaster.connect(horrorContext.destination)}
   if(horrorContext.state==='suspended')horrorContext.resume().catch(()=>{});
+  prepareGlassSound();
  }catch(e){console.warn('Audio nicht verfügbar',e)}
 }
 function horrorTone(freq,duration,volume,delay=0,type='sawtooth',endFreq=0){
@@ -760,8 +776,7 @@ function horrorCue(kind,variant=0){
   // No artificial oscillator: let the impact sample supply the actual glass texture.
  }else if(kind==='smash'){
   // One clean recording, not layered synthetic noise that sounds metallic on iPhone.
-  glassSample.pause();glassSample.currentTime=0;glassSample.volume=.56;
-  glassSample.play().catch(()=>{});
+  playGlassImpact();
  }
 }
 function stopCreatureVisit(){
@@ -773,7 +788,7 @@ function showCreatureVisit(){
  const el=$('creatureVisit'),video=$('creatureMovie');if(!el||!video)return;
  stopCreatureVisit();
  const clips=['zombie-mann-glass.mp4','zombie-frau-glass.mp4','zombie-soldat-glass.mp4','zombie-neu-1.mp4','zombie-neu-3.mp4','zombie-neu-4.mp4','zombie-neu-5.mp4','zombie-neu-6.mp4'];
- const variant=(g.level-1)%clips.length;video.src=clips[variant];
+ const variant=(g.level-1+Math.max(0,creatureVisits-1))%clips.length;video.src=clips[variant];
  const posters=['','', '', 'zombie-neu-1.jpg','zombie-neu-3.jpg','zombie-neu-4.jpg','zombie-neu-5.jpg','zombie-neu-6.jpg'];
  video.poster=posters[variant]||'';video.muted=!soundEnabled;video.playsInline=true;
  video.volume=soundEnabled?.68:0;video.currentTime=0;video.onended=()=>{if(!smashed){smashed=true;el.classList.add('smash');horrorCue('smash');creatureTimer=setTimeout(stopCreatureVisit,850)}else stopCreatureVisit()};
