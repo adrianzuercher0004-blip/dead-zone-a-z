@@ -1,0 +1,26 @@
+name: Fix story film for iPhone Safari
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fix-story-film-iphone.yml'
+permissions:
+  contents: write
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Convert pilot film to Safari-compatible MP4
+        run: |
+          ffmpeg -hide_banner -y -i DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus.mp4 -map 0:v:0 -map 0:a:0 -vf "scale=854:480:flags=lanczos,fps=25,format=yuv420p" -c:v libx264 -preset medium -crf 24 -profile:v baseline -level:v 3.1 -x264-params "ref=1:bframes=0" -c:a aac -b:a 128k -ar 44100 -ac 2 -movflags +faststart DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus_fixed.mp4
+          ffprobe -v error -show_entries stream=codec_name,profile,level,width,height -of compact DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus_fixed.mp4
+          mv DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus_fixed.mp4 DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus.mp4
+      - name: Publish fixed video
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus.mp4
+          git diff --cached --quiet || (git commit -m "Re-encode hospital story film for iPhone Safari playback" && git push)
