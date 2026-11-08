@@ -774,8 +774,8 @@ function showCreatureVisit(){
  const clips=['zombie-mann-glass.mp4','zombie-frau-glass.mp4','zombie-soldat-glass.mp4','zombie-neu-1.mp4','zombie-neu-3.mp4','zombie-neu-4.mp4','zombie-neu-5.mp4','zombie-neu-6.mp4'];
  const variant=(g.level-1)%clips.length;video.src=clips[variant];
  const posters=['','', '', 'zombie-neu-1.jpg','zombie-neu-3.jpg','zombie-neu-4.jpg','zombie-neu-5.jpg','zombie-neu-6.jpg'];
- video.poster=posters[variant]||'';video.muted=!soundEnabled;
- video.volume=soundEnabled?.48:1;video.currentTime=0;
+ video.poster=posters[variant]||'';video.muted=true;video.playsInline=true;
+ video.volume=0;video.currentTime=0;video.onended=stopCreatureVisit;
  void el.offsetWidth;el.classList.add('active');
  horrorCue('approach',variant);
  let cracked=false,smashed=false,started=performance.now();
@@ -788,10 +788,11 @@ function showCreatureVisit(){
   if(t>=7.9){stopCreatureVisit();return}
   creatureFrame=requestAnimationFrame(sync);
  };
- video.play().then(()=>{started=performance.now();creatureFrame=requestAnimationFrame(sync)}).catch(err=>{
+ creatureFrame=requestAnimationFrame(sync);
+ video.play().then(()=>{}).catch(err=>{
   console.warn('Zombie-Video nicht gestartet',err);stopCreatureVisit();
  });
- creatureTimer=setTimeout(stopCreatureVisit,10500);
+ creatureTimer=setTimeout(stopCreatureVisit,8300);
 }
 const ambience=new Audio('./zombie-atmosphaere.mp3');
 ambience.loop=true;ambience.volume=.18;ambience.preload='none';
