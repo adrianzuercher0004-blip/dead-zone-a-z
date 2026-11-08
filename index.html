@@ -705,16 +705,16 @@ let creatureTimer=null;
 let creatureMissionKey='',creatureVisits=0,creatureNextMove=7,creatureLastMove=-1;
 function resetCreatureVisits(){
  const key=g?g.level+'-'+g.difficulty:'';
- if(key!==creatureMissionKey){creatureMissionKey=key;creatureVisits=0;creatureLastMove=-1;creatureNextMove=6+(g.level%5);}
+ if(key!==creatureMissionKey){creatureMissionKey=key;creatureVisits=0;creatureLastMove=-1;creatureNextMove=2+(g.level%2);}
 }
 function maybeCreatureVisit(){
  if(!g||g.completed)return;
  resetCreatureVisits();
- const maxVisits=1;
+ const maxVisits=2;
  if(creatureVisits>=maxVisits||g.moves<creatureNextMove||g.moves===creatureLastMove)return;
  if(!$('welcome').classList.contains('hidden')||!$('dialog').classList.contains('hidden'))return;
  creatureLastMove=g.moves;creatureVisits++;
- creatureNextMove+=9+((g.level+creatureVisits*3)%5);
+ creatureNextMove+=7+((g.level+creatureVisits)%3);
  showCreatureVisit();
 }
 // v1.27: layered cinematic horror sound; keep iOS audio behind a user gesture.
