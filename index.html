@@ -755,11 +755,10 @@ function horrorCue(kind,variant=0){
   horrorTone(62,.15,.075,.9,'triangle',45);
   horrorTone(55,.18,.09,1.5,'triangle',40);
  }else if(kind==='crack'){
-  horrorTone(90,.23,.16,0,'triangle',44);horrorNoise(.28,.18,.025,1050);
+  // No artificial oscillator: let the impact sample supply the actual glass texture.
  }else if(kind==='smash'){
-  horrorTone(68,.45,.24,0,'sawtooth',36);
-  horrorNoise(.95,.25,.02,1450);horrorNoise(.46,.14,.13,3000);
-  glassSample.pause();glassSample.currentTime=0;glassSample.volume=.85;
+  // One clean recording, not layered synthetic noise that sounds metallic on iPhone.
+  glassSample.pause();glassSample.currentTime=0;glassSample.volume=.56;
   glassSample.play().catch(()=>{});
  }
 }
