@@ -1,9 +1,11 @@
-name: Fix story film for iPhone Safari
+name: Convert story film for iPhone Safari
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/fix-story-film-iphone.yml'
+    inputs:
+      video_file:
+        description: 'MP4 filename in repository root (e.g. DEAD_ZONE_AZ_Pilotfilm_02_Bunker.mp4)'
+        required: true
+        default: 'DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus.mp4'
 permissions:
   contents: write
 jobs:
@@ -13,21 +15,31 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
-      - name: Install FFmpeg and check source
+      - name: Install FFmpeg
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
-          command -v ffmpeg
-          command -v ffprobe
-          ls -lh DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus.mp4
-      - name: Convert pilot film to Safari-compatible MP4
+          ffmpeg -version | head -1
+      - name: Convert selected story film for iPhone
+        env:
+          VIDEO_FILE: ${{ inputs.video_file }}
         run: |
-          ffmpeg -hide_banner -y -i DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus.mp4 -map 0:v:0 -map 0:a:0 -vf "scale=854:480:flags=lanczos,fps=25,format=yuv420p" -c:v libx264 -preset medium -crf 24 -profile:v baseline -level:v 3.1 -x264-params "ref=1:bframes=0" -c:a aac -b:a 128k -ar 44100 -ac 2 -movflags +faststart DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus_fixed.mp4
-          ffprobe -v error -show_entries stream=codec_name,profile,level,width,height -of compact DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus_fixed.mp4
-          mv DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus_fixed.mp4 DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus.mp4
-      - name: Publish fixed video
+          set -euo pipefail
+          if [[ "$VIDEO_FILE" != *.mp4 || "$VIDEO_FILE" == */* || "$VIDEO_FILE" == *..* || ! -f "$VIDEO_FILE" ]]; then
+            echo "::error::Choose an existing .mp4 filename in the repository root"
+            exit 1
+          fi
+          ffmpeg -hide_banner -y -i "$VIDEO_FILE" -map 0:v:0 -map '0:a:0?' -vf "scale=854:480:force_original_aspect_ratio=decrease:flags=lanczos,pad=854:480:(ow-iw)/2:(oh-ih)/2,fps=25,format=yuv420p" -c:v libx264 -preset medium -crf 24 -profile:v baseline -level:v 3.1 -x264-params "ref=1:bframes=0" -c:a aac -b:a 128k -ar 44100 -ac 2 -movflags +faststart converted-story.mp4
+          ffprobe -v error -show_entries stream=codec_name,profile,level,width,height -of compact converted-story.mp4
+          mv converted-story.mp4 "$VIDEO_FILE"
+      - name: Publish converted story film
+        env:
+          VIDEO_FILE: ${{ inputs.video_file }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus.mp4
-          git diff --cached --quiet || (git commit -m "Re-encode hospital story film for iPhone Safari playback" && git push)
+          git add -- "$VIDEO_FILE"
+          if ! git diff --cached --quiet; then
+            git commit -m "Convert story film for iPhone Safari: $VIDEO_FILE"
+            git push
+          fi
