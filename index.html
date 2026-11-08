@@ -328,14 +328,14 @@ button:focus-visible,.target:focus-visible,.map-node:focus-visible{outline:3px s
 .story-intro{font-size:13px;color:#e0c7b2;margin:5px 0 14px}
 .story-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 .story-card{position:relative;border:2px solid #a78d70;border-radius:9px;overflow:hidden;background:#171b1a;color:#f9eee0;padding:0;text-align:left;min-width:0}
-.story-card img{display:block;width:100%;aspect-ratio:1.65;object-fit:cover}
+.story-card img{display:block;width:100%;aspect-ratio:9/16;object-fit:contain;background:#07110e}
 .story-card.story-locked img{filter:brightness(.8)}
 .story-card .story-level{position:absolute;top:6px;left:6px;padding:3px 7px;border-radius:5px;background:#131b18e8;color:#fff;font-weight:800;font-size:12px}
 .story-card.story-earned .story-level{background:#12622f}
 .story-card .story-name{display:block;padding:7px 5px;text-align:center;font-weight:800;font-size:11px;min-height:39px}
 .story-summary{margin:12px 0;font-weight:700;color:#c9e8cb}
 .story-detail{padding:8px;background:#1b2421;border:1px solid #6d7e6a;border-radius:8px;margin:12px 0;color:#f4e8d7}
-.story-detail img{width:100%;max-height:260px;object-fit:cover;border-radius:5px}
+.story-detail img{display:block;width:100%;max-height:min(64dvh,640px);object-fit:contain;border-radius:5px;background:#07110e}
 .story-detail p{font-size:14px;line-height:1.5}
 .story-modal button#storyBack{width:100%;margin-top:10px}
 @media(min-width:650px){.story-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
@@ -1006,8 +1006,8 @@ const STORY_TEXT=[
  'Missionen 101–110 · DIE VERSEUCHTE FABRIK. In der Fabrik liegt der letzte Bestandteil des Gegenmittels. Während die Maschinen wieder anlaufen, stürmen Zombies das Gebäude. Die Überlebenden müssen mit der Probe entkommen.',
  'Missionen 111–120 · DAS REICH DER UNTOTEN. Der König der Untoten erwartet die Gruppe zum letzten Kampf. Mit dem Gegenmittel in der Hand entscheiden die Überlebenden über das Schicksal der Welt. Die Nacht endet – doch wer wird den Morgen erleben?'
 ];
-const STORY_IMAGES=['ueberleben-zombie-01.webp','zombie-neu-2.jpg','ueberleben-zombie-03.webp','ueberleben-zombie-04.webp','ueberleben-zombie-05.webp','ueberleben-zombie-06.webp','ueberleben-zombie-07.webp','ueberleben-zombie-08.webp','ueberleben-zombie-09.webp','ueberleben-zombie-10.webp','zombie-neu-5.jpg','zombie-neu-6.jpg'];
-const STORY_FILM_POSTERS=['story-film-start-1.jpg','story-film-start-2.jpg','story-film-start-3.jpg','story-film-start-4.jpg','story-film-start-5.jpg'];
+const STORY_IMAGES=["chapter-scene-01.webp","chapter-scene-02.webp","chapter-scene-03.webp","chapter-scene-04.webp","chapter-scene-05.webp","chapter-scene-06.webp","chapter-scene-07.webp","chapter-scene-08.webp","chapter-scene-09.webp","chapter-scene-10.webp","chapter-scene-11.webp","chapter-scene-12.webp"];
+const STORY_FILM_POSTERS=["chapter-scene-01.webp","chapter-scene-02.webp","chapter-scene-03.webp","chapter-scene-04.webp","chapter-scene-05.webp","chapter-scene-06.webp","chapter-scene-07.webp","chapter-scene-08.webp","chapter-scene-09.webp","chapter-scene-10.webp","chapter-scene-11.webp","chapter-scene-12.webp"];
 function storyImage(i){return STORY_FILM_POSTERS[i]||STORY_IMAGES[i]||'story-'+(i+1)+'.webp'}
 const STORY_FILMS=["./01-Krankenhaus.mp4?v=420aef50352f","./02-Militaerbunker.mp4?v=abbbcc9d7ccc","./03-Wald.mp4?v=bb172bced91b","./04-Stadt.mp4?v=4b5d1919e198","./05-Fabrik.mp4?v=2aab37469e50","./06-Sammelplatz.mp4?v=da86b52f0f4e"];
 let storyReturn='welcome';
