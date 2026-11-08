@@ -788,7 +788,12 @@ function showCreatureVisit(){
  const el=$('creatureVisit'),video=$('creatureMovie');if(!el||!video)return;
  stopCreatureVisit();
  const clips=['zombie-mann-glass.mp4','zombie-frau-glass.mp4','zombie-soldat-glass.mp4','zombie-neu-1.mp4','zombie-neu-3.mp4','zombie-neu-4.mp4','zombie-neu-5.mp4','zombie-neu-6.mp4'];
- const variant=(g.level-1+Math.max(0,creatureVisits-1))%clips.length;video.src=clips[variant];
+ // Rotate through every available zombie before repeating one, across levels and reloads.
+ let nextZombie=0;
+ try{nextZombie=Number(localStorage.getItem('deadzoneAZ_nextZombie')||0)}catch(e){}
+ const variant=((nextZombie%clips.length)+clips.length)%clips.length;
+ try{localStorage.setItem('deadzoneAZ_nextZombie',String(variant+1))}catch(e){}
+ video.src=clips[variant];
  const posters=['','', '', 'zombie-neu-1.jpg','zombie-neu-3.jpg','zombie-neu-4.jpg','zombie-neu-5.jpg','zombie-neu-6.jpg'];
  video.poster=posters[variant]||'';video.muted=!soundEnabled;video.playsInline=true;
  video.volume=soundEnabled?.68:0;video.currentTime=0;video.onended=()=>{if(!smashed){smashed=true;el.classList.add('smash');horrorCue('smash');creatureTimer=setTimeout(stopCreatureVisit,850)}else stopCreatureVisit()};
