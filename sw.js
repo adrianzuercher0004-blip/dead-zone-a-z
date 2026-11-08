@@ -1,4 +1,4 @@
-const CACHE='deadzone-az-2026-11-08-story-video-posters-v1';
+const CACHE='deadzone-az-2026-11-08-desktop-polish-v1';
 self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);try{await cache.add('./index.html')}catch(e){}await self.skipWaiting()})()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const key of await caches.keys())if(key.startsWith('deadzone-az-')&&key!==CACHE)await caches.delete(key);await self.clients.claim()})()));
 self.addEventListener('fetch',event=>{const req=event.request;if(req.method!=='GET')return;const url=new URL(req.url);if(url.origin!==self.location.origin)return;if(req.mode==='navigate'||url.pathname.endsWith('/index.html')){event.respondWith(fetch(req,{cache:'no-store'}).then(res=>{if(res.ok){const copy=res.clone();caches.open(CACHE).then(c=>c.put('./index.html',copy)).catch(()=>{})}return res}).catch(async()=>await caches.match('./index.html')||Response.error()));return}event.respondWith(fetch(req).catch(()=>caches.match(req)))});
