@@ -329,7 +329,7 @@ button:focus-visible,.target:focus-visible,.map-node:focus-visible{outline:3px s
 .story-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 .story-card{position:relative;border:2px solid #a78d70;border-radius:9px;overflow:hidden;background:#171b1a;color:#f9eee0;padding:0;text-align:left;min-width:0}
 .story-card img{display:block;width:100%;aspect-ratio:1.65;object-fit:cover}
-.story-card.story-locked img{filter:grayscale(.8) brightness(.34)}
+.story-card.story-locked img{filter:brightness(.8)}
 .story-card .story-level{position:absolute;top:6px;left:6px;padding:3px 7px;border-radius:5px;background:#131b18e8;color:#fff;font-weight:800;font-size:12px}
 .story-card.story-earned .story-level{background:#12622f}
 .story-card .story-name{display:block;padding:7px 5px;text-align:center;font-weight:800;font-size:11px;min-height:39px}
@@ -997,7 +997,8 @@ const STORY_TEXT=[
  'Missionen 111–120 · DAS REICH DER UNTOTEN. Der König der Untoten erwartet die Gruppe zum letzten Kampf. Mit dem Gegenmittel in der Hand entscheiden die Überlebenden über das Schicksal der Welt. Die Nacht endet – doch wer wird den Morgen erleben?'
 ];
 const STORY_IMAGES=['ueberleben-zombie-01.webp','zombie-neu-2.jpg','ueberleben-zombie-03.webp','ueberleben-zombie-04.webp','ueberleben-zombie-05.webp','ueberleben-zombie-06.webp','ueberleben-zombie-07.webp','ueberleben-zombie-08.webp','ueberleben-zombie-09.webp','ueberleben-zombie-10.webp','zombie-neu-5.jpg','zombie-neu-6.jpg'];
-function storyImage(i){return STORY_IMAGES[i]||'story-'+(i+1)+'.webp'}
+const STORY_FILM_POSTERS=['story-film-start-1.jpg','story-film-start-2.jpg','story-film-start-3.jpg','story-film-start-4.jpg','story-film-start-5.jpg'];
+function storyImage(i){return STORY_FILM_POSTERS[i]||STORY_IMAGES[i]||'story-'+(i+1)+'.webp'}
 const STORY_FILMS=['./DEAD_ZONE_AZ_Pilotfilm_01_Krankenhaus.mp4?v=492deb4ac76aea952e2c20195f8f2266bc9a9f95','./DEAD_ZONE_AZ_Pilotfilm_02_Militaerbunker.mp4?v=bunker20','./DEAD_ZONE_AZ_Pilotfilm_03_Verfluchter_Wald.mp4?v=wald20','./DEAD_ZONE_AZ_Pilotfilm_04_Die_tote_Stadt.mp4?v=stadt20','./Die-Fabrik-%C2%B7-20-Sekunden.mp4?v=aa31c6aa'];
 let storyReturn='welcome';
 function openStory(from){storyReturn=from||'welcome';$('welcome').classList.add('hidden');$('mapOverlay').classList.add('hidden');$('storyOverlay').classList.remove('hidden');$('storyDetail').classList.add('hidden');renderStory()}
