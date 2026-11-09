@@ -1,5 +1,5 @@
-const VERSION='1.29';
-const CACHE='deadzone-az-2026-11-09-release-1-29';
+const VERSION='1.29.1';
+const CACHE='deadzone-az-2026-11-09-desktop-fit-1-29-1';
 self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);try{await cache.add(new Request('./index.html',{cache:'reload'}))}catch(e){}await self.skipWaiting()})()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const key of await caches.keys())if(key.startsWith('deadzone-az-')&&key!==CACHE)await caches.delete(key);await self.clients.claim();for(const client of await self.clients.matchAll({type:'window'}))client.postMessage({type:'GAME_VERSION',version:VERSION})})()));
 self.addEventListener('message',event=>{if(event.data?.type==='CHECK_VERSION')event.source?.postMessage({type:'GAME_VERSION',version:VERSION})});
