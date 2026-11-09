@@ -1,4 +1,6 @@
-const CACHE='deadzone-az-2026-11-09-usability-v1';
-self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);try{await cache.add('./index.html')}catch(e){}await self.skipWaiting()})()));
-self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const key of await caches.keys())if(key.startsWith('deadzone-az-')&&key!==CACHE)await caches.delete(key);await self.clients.claim()})()));
+const VERSION='1.29';
+const CACHE='deadzone-az-2026-11-09-release-1-29';
+self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);try{await cache.add(new Request('./index.html',{cache:'reload'}))}catch(e){}await self.skipWaiting()})()));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const key of await caches.keys())if(key.startsWith('deadzone-az-')&&key!==CACHE)await caches.delete(key);await self.clients.claim();for(const client of await self.clients.matchAll({type:'window'}))client.postMessage({type:'GAME_VERSION',version:VERSION})})()));
+self.addEventListener('message',event=>{if(event.data?.type==='CHECK_VERSION')event.source?.postMessage({type:'GAME_VERSION',version:VERSION})});
 self.addEventListener('fetch',event=>{const req=event.request;if(req.method!=='GET')return;const url=new URL(req.url);if(url.origin!==self.location.origin)return;if(req.mode==='navigate'||url.pathname.endsWith('/index.html')){event.respondWith(fetch(req,{cache:'no-store'}).then(res=>{if(res.ok){const copy=res.clone();caches.open(CACHE).then(c=>c.put('./index.html',copy)).catch(()=>{})}return res}).catch(async()=>await caches.match('./index.html')||Response.error()));return}event.respondWith(fetch(req).catch(()=>caches.match(req)))});
